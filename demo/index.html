@@ -201,9 +201,9 @@ td input.q{width:64px;padding:6px;text-align:right}
     <h3>Ventouse horizontale – coaxial Ø80/125 noir</h3>
     <div class="grid">
       <div><label for="vPos">Sortie du poêle</label><select id="vPos"><option value="arriere">Arrière</option><option value="dessus">Dessus</option></select></div>
-      <div><label for="vL">Longueur de conduit vertical (m, 2 m minimum)</label><input type="number" id="vL" min="2" step="0.25" value="2"></div>
+      <div id="wVL"><label for="vL">Longueur de conduit vertical (m, 2 m minimum)</label><input type="number" id="vL" min="2" step="0.25" value="2"></div>
     </div>
-    <p class="sub" style="margin:8px 0 0">Composition : Té 90° fumées-air 1071 (sortie arrière uniquement), éléments droits, coude 90° 1254, sortie ventouse 1409 et rosace noire. Toujours en noir, poêle à granulés uniquement.</p>
+    <p class="sub" style="margin:8px 0 0" id="vTxt"></p>
   </div>
 
   <div class="block" id="bExt" style="display:none">
@@ -320,6 +320,9 @@ function refreshCfg(){
   if(S.app!=='granules' && (S.type==='coax'||S.type==='vent')){ S.type='tubage'; setSeg('segType','tubage'); }
   $('btnCoax').style.display = S.app==='granules'?'':'none'; $('btnVent').style.display = S.app==='granules'?'':'none';
   $('bVent').style.display = S.type==='vent'?'':'none';
+  { const ar=$('vPos').value==='arriere'; $('wVL').style.display=ar?'':'none';
+    $('vTxt').textContent = ar ? 'Sortie arrière : Té 90° fumées-air 1071, éléments droits (2 m minimum), brides murales 1354, coude 90° 1254, sortie ventouse 1409, rosace noire et colliers de jonction 1353. Toujours en noir, poêle à granulés uniquement.'
+      : 'Sortie dessus : élément 500 (1002), télescopique 1006 et élément 250 (1003), coude 90° 1254, sortie ventouse 1409, rosace noire et colliers de jonction 1353. Toujours en noir, poêle à granulés uniquement.'; }
   $('bDp').style.display = S.type==='dp'?'':'none';
   $('bCoax').style.display = S.type==='coax'?'':'none';
   $('bRacc').style.display = (S.type==='coax'||S.type==='vent')?'none':'';
@@ -482,14 +485,23 @@ function generate(auto){
   }
   if(vent){
     const SH='COASSIALE INOX-NERO', lbl='Ø80/125 noir';
-    let vL=+$('vL').value||0; if(vL<2){ vL=2; notes.push(`Ventouse horizontale : 2 m de conduit vertical minimum, longueur portée à 2 m.`); }
+    const ar=$('vPos').value==='arriere';
+    let vL=+$('vL').value||0; if(ar && vL<2){ vL=2; notes.push(`Ventouse horizontale : 2 m de conduit vertical minimum, longueur portée à 2 m.`); }
     if(dia!==80) notes.push(`Ventouse horizontale prévue en Ø80/125 : vérifiez le raccordement sur la sortie Ø${dia} du poêle.`);
-    if($('vPos').value==='arriere') add(find('1071-ZC08',SH),1,`Raccord à Té 90° fumées-air orientable coax ${lbl}`,'c_te');
-    { const dec=decompose(vL*1000,[[1000,'1001'],[500,'1002'],[250,'1003']]); for(const c in dec) add(find(`${c}-ZC08`,SH),dec[c],`Élément droit coax ${lbl}`,'c_droit'); }
+    if(ar){
+      add(find('1071-ZC08',SH),1,`Raccord à Té 90° fumées-air orientable coax ${lbl}`,'c_te');
+      const dec=decompose(vL*1000,[[1000,'1001'],[500,'1002'],[250,'1003']]); for(const c in dec) add(find(`${c}-ZC08`,SH),dec[c],`Élément droit coax ${lbl}`,'c_droit');
+      add(find('1354-ZC08',SH),Math.ceil(vL),`Bride murale coax ${lbl}`,'c_bride');
+    } else {
+      add(find('1002-ZC08',SH),1,`Élément droit L500 coax ${lbl}`,'c_droit');
+      add(find('1006-ZC08',SH),1,`Élément télescopique coax ${lbl}`,'c_tel');
+      add(find('1003-ZC08',SH),1,`Élément droit L250 coax ${lbl}`,'c_droit');
+    }
     add(find('1254-ZC08',SH),1,`Coude 90° coax ${lbl}`,'c_c90');
+    { const nJ=cnt(['c_te','c_droit','c_tel','c_c90']); add(find('1353-ZC08',SH),nJ,`Collier de jonction coax ${lbl}`,'v_col'); notes.push(`Colliers de jonction 1353 : un par élément (${nJ}).`); }
     add(find('1409-ZC08',SH),1,`Sortie ventouse avec 2 rosaces coax ${lbl}`,'c_ventouse');
     add(find('1414-C08','COASSIALE INOX-INOX'),1,`Rosace noire Ø125`,'v_ros');
-    notes.push(`Ventouse horizontale : ${String(vL).replace('.',',')} m de conduit vertical, coude 90° puis sortie ventouse. Position du terminal à vérifier selon la notice du poêle et la réglementation des appareils étanches (distances aux ouvrants, au sol, aux limites de propriété).`);
+    notes.push(`Ventouse horizontale : ${ar?String(vL).replace('.',',')+' m de conduit vertical':'sortie dessus, 1002 + télescopique 1006 + 1003'}, coude 90° puis sortie ventouse. Position du terminal à vérifier selon la notice du poêle et la réglementation des appareils étanches (distances aux ouvrants, au sol, aux limites de propriété).`);
   }
   if(S.type==='pignon'){
     const noir=$('eFin').value==='noir', P=noir?'NER':'D5A', X=noir?'Z':'A', SH=noir?'ECO 25 NERO':'ECO 25 INOX';
@@ -530,14 +542,14 @@ let autoT; const autoRegen=()=>{ clearTimeout(autoT); autoT=setTimeout(()=>{ if(
 document.querySelectorAll('#cfg input, #cfg select').forEach(el=>el.addEventListener('change',autoRegen));
 document.querySelectorAll('#cfg .seg button').forEach(el=>el.addEventListener('click',autoRegen));
 $('dia').onchange=()=>{S.dia=+$('dia').value; save();};
-$('cOut').onchange=refreshCfg; $('iRacc').onchange=refreshCfg;
+$('cOut').onchange=refreshCfg; $('iRacc').onchange=refreshCfg; $('vPos').addEventListener('change',refreshCfg);
 
 // ---------- schéma de principe ----------
 let G_LIAISON='Élément de liaison noir / Eco 25';
 const ROLE_NAME={r_tel:'Élément télescopique',r_droit:'Éléments droits',r_c30:'Coude 30°',r_c45:'Coude 45°',r_c90:'Coude 90°',r_te:'Té 90° avec tampon',r_manchon:'Raccord F/F anti-bistre',r_rosace:'Rosace',r_bride:'Brides murales',
 t_flex:'Tubage flexible',t_racc_bas:'Raccord flexible bas',t_racc_haut:'Raccord flexible haut',t_support:'Support à ailes',t_bride:'Bride de sécurité',t_solin:'Solin / plaque de sortie',t_coll:'Collerette',t_chap:'Chapeau',t_joint:'Raccord flexible-flexible',
 d_liaison:G_LIAISON,d_droit:'Éléments droits Eco 25',f_support:'Collier de soutien inox',f_ailes:'Support à ailes',f_bride:'Bride de sécurité',f_coq:'Coquille isolante',f_rosace:'Rosace de plafond',f_rosace_ph:'Rosace plancher habité',
-x_solin:'Solin',x_coll:'Collerette',x_chap:'Chapeau',c_te:'Té 90° coax',c_purge:'Tampon purge',c_tel:'Télescopique coax',c_droit:'Éléments droits coax',c_c30:'Coude 30° coax',c_c45:'Coude 45° coax',c_c90:'Coude 90° coax',c_bride:'Brides murales',c_ventouse:'Sortie ventouse',m_te:'Té 90° pour flexible',m_tampon:'Tampon purge',e_trav:'Traversée de mur Eco 25',e_coll:'Collerettes couvre-mur',e_te:'Té 90° DP',e_purge:'Tampon purge',e_equerre:'Équerre support à mur',e_droit:'Éléments droits Eco 25',e_bride:'Brides murales Eco 25',e_bs:'Bride de sécurité',e_haub:'Bride de haubanage',d_c15:'Coude 15° Eco 25',d_c30:'Coude 30° Eco 25',d_c45:'Coude 45° Eco 25',e_c15:'Coude 15° Eco 25',e_c30:'Coude 30° Eco 25',e_c45:'Coude 45° Eco 25',v_ros:'Rosace noire'};
+x_solin:'Solin',x_coll:'Collerette',x_chap:'Chapeau',c_te:'Té 90° coax',c_purge:'Tampon purge',c_tel:'Télescopique coax',c_droit:'Éléments droits coax',c_c30:'Coude 30° coax',c_c45:'Coude 45° coax',c_c90:'Coude 90° coax',c_bride:'Brides murales',c_ventouse:'Sortie ventouse',m_te:'Té 90° pour flexible',m_tampon:'Tampon purge',e_trav:'Traversée de mur Eco 25',e_coll:'Collerettes couvre-mur',e_te:'Té 90° DP',e_purge:'Tampon purge',e_equerre:'Équerre support à mur',e_droit:'Éléments droits Eco 25',e_bride:'Brides murales Eco 25',e_bs:'Bride de sécurité',e_haub:'Bride de haubanage',d_c15:'Coude 15° Eco 25',d_c30:'Coude 30° Eco 25',d_c45:'Coude 45° Eco 25',e_c15:'Coude 15° Eco 25',e_c30:'Coude 30° Eco 25',e_c45:'Coude 45° Eco 25',v_ros:'Rosace noire',v_col:'Colliers de jonction'};
 function schemaSVG(){
   const G=S.gen; if(!G) return '';
   ROLE_NAME.d_liaison = G.app==='insert'?'Adaptateur inox / Eco 25':'Élément de liaison noir / Eco 25';
@@ -739,11 +751,14 @@ function schemaSVG(){
     if(back){ const sx=x0-SW-34; g+=stove(sx); g+=`<rect x="${sx+SW}" y="${BACKY-w/2}" width="${x0-sx-SW}" height="${w}" fill="${NO}" stroke="${NOS}"/><rect x="${x0-w/2-4}" y="${BACKY-w/2-4}" width="${w+8}" height="${w+8}" fill="${NO}" stroke="${NOS}"/>`; pushA('c_te',[x0+w/2+4,BACKY]); y0=BACKY-w/2-4; }
     else { const sx=x0-TOPX; g+=stove(sx); g+=`<rect x="${x0-w/2-2}" y="${STOP-6}" width="${w+4}" height="6" fill="#3a3e43"/>`; y0=STOP-6; }
     g+=pipeV(x0,y0,yH+w/2+4,w,NO,NOS); pushA('c_droit',[x0+w/2,(y0+yH)/2]);
+    if(qty.c_tel){ const yt=(y0+yH)/2+10; g+=`<rect x="${x0-w/2-2}" y="${yt}" width="${w+4}" height="4" fill="#555"/>`; pushA('c_tel',[x0+w/2+2,yt+2]); }
+    { const yj=[y0-4,(y0+yH)/2-20,yH+w/2+6]; yj.forEach(y=>{ g+=`<rect x="${x0-w/2-3}" y="${y-2}" width="${w+6}" height="4" fill="#666"/>`; }); pushA('v_col',[x0-w/2-3,yj[1]]); }
+    if(qty.c_bride){ const nb=Math.min(qty.c_bride,4); for(let k=0;k<nb;k++){ const yb=yH+w/2+30+k*((y0-yH-60)/Math.max(1,nb)); g+=`<rect x="${x0+w/2}" y="${yb-3}" width="${WX-x0-w/2}" height="6" fill="#444"/>`; pushA('c_bride',[(x0+WX)/2,yb+3]); } }
     g+=`<rect x="${x0-w/2-4}" y="${yH-w/2-4}" width="${w+8}" height="${w+8}" rx="6" fill="${NO}" stroke="${NOS}"/>`; pushA('c_c90',[x0+w/2+4,yH-w/2]);
     g+=`<rect x="${x0+w/2+4}" y="${yH-w/2}" width="${WX-x0-w/2-4}" height="${w}" fill="${NO}" stroke="${NOS}"/>`;
     g+=`<rect x="${WX}" y="${yH-w/2}" width="40" height="${w}" fill="${NO}" stroke="${NOS}"/><rect x="${WX+40}" y="${yH-20}" width="10" height="40" fill="#555"/><rect x="${WX-6}" y="${yH-24}" width="6" height="48" fill="${NO}"/>`;
     pushA('c_ventouse',[WX+50,yH]); pushA('v_ros',[WX-6,yH+24]);
-    { const xd=x0+w/2+40, ym=(GR+yH)/2; g+=`<line x1="${xd}" y1="${GR-2}" x2="${xd}" y2="${yH+w/2+6}" stroke="#9aa1a8" stroke-dasharray="3 3"/><line x1="${xd-5}" y1="${yH+w/2+6}" x2="${xd+5}" y2="${yH+w/2+6}" stroke="#9aa1a8"/><text x="${xd-5}" y="${ym}" transform="rotate(-90 ${xd-5} ${ym})" text-anchor="middle" font-size="10" fill="#7a828a">Conduit vertical ${String(G.vL).replace('.',',')} m (2 m mini)</text>`; }
+    if(G.pos==='arriere'){ const xd=x0+w/2+40, ym=(GR+yH)/2; g+=`<line x1="${xd}" y1="${GR-2}" x2="${xd}" y2="${yH+w/2+6}" stroke="#9aa1a8" stroke-dasharray="3 3"/><line x1="${xd-5}" y1="${yH+w/2+6}" x2="${xd+5}" y2="${yH+w/2+6}" stroke="#9aa1a8"/><text x="${xd-5}" y="${ym}" transform="rotate(-90 ${xd-5} ${ym})" text-anchor="middle" font-size="10" fill="#7a828a">Conduit vertical ${String(G.vL).replace('.',',')} m (2 m mini)</text>`; }
   } else if(G.type==='coax'){ // ventouse murale
     const WX=262, yH=380, w=24;
     g+=`<rect x="${WX}" y="40" width="22" height="${GR-40}" fill="url(#hatch)" stroke="#9aa1a8"/><text x="${WX-4}" y="58" text-anchor="end" font-size="10" fill="#7a828a">Mur extérieur</text>`;
