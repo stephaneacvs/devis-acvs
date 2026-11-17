@@ -231,6 +231,8 @@ td input.q{width:64px;padding:6px;text-align:right}
   </div>
   <div class="totals"><table>
     <tr><td>Total public HT</td><td class="num" id="tHT">0,00 €</td></tr>
+    <tr><td><label for="coef" style="display:inline;margin:0">Coefficient de sécurité</label> <select id="coef" style="width:auto;display:inline-block;margin-left:6px;padding:4px 6px"><option value="1">Aucun</option><option value="1.1">× 1,1 (+10 %)</option><option value="1.2">× 1,2 (+20 %)</option><option value="1.3">× 1,3 (+30 %)</option><option value="1.4">× 1,4 (+40 %)</option><option value="1.5">× 1,5 (+50 %)</option></select></td><td class="num" id="tCoef">—</td></tr>
+    <tr id="rHTc" style="display:none"><td>Total HT avec coefficient</td><td class="num" id="tHTc">0,00 €</td></tr>
     <tr><td>TVA 20 %</td><td class="num" id="tTVA">0,00 €</td></tr>
     <tr class="big"><td>Total TTC</td><td class="num" id="tTTC">0,00 €</td></tr>
   </table></div>
@@ -274,7 +276,7 @@ function find(code, prefer){ const l=byCode[code]; if(!l) return null; if(prefer
 function first(cands, prefer){ for(const c of cands){const f=find(c,prefer); if(f) return f;} return null; }
 
 // ---------- state ----------
-let S = {app:'granules', type:'tubage'};
+let S = {app:'granules', type:'tubage', coef:1};
 let lines = []; // {i, qty} or {miss:true, label, qty}
 const $ = id=>document.getElementById(id);
 const eur = v=> v.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2}).replace(/[\u202f\u00a0]/g,' ')+' €';
@@ -719,6 +721,8 @@ function svgToPng(svg){ return new Promise((res,rej)=>{ const img=new Image(); i
 
 // ---------- table ----------
 function total(){ return lines.reduce((s,l)=> s + (l.miss?0:items[l.i].price*l.qty),0); }
+function coef(){ const c=parseFloat(S.coef); return c>1&&c<=1.5?c:1; }
+const coefTxt=c=>'× '+String(c).replace('.',',');
 function render(){
   const tb=document.querySelector('#tbl tbody');
   if(!lines.length){ tb.innerHTML='<tr><td colspan="6" class="empty">Aucune pièce. Générez une liste à l\'étape 1 ou recherchez une référence.</td></tr>'; }
@@ -732,7 +736,7 @@ function render(){
   tb.querySelectorAll('input.q').forEach(inp=>inp.onchange=()=>{ const v=Math.max(0,parseFloat(inp.value)||0); lines[+inp.dataset.k].qty=v; render(); save(); });
   tb.querySelectorAll('button.x').forEach(b=>b.onclick=()=>{ lines.splice(+b.dataset.k,1); render(); save(); });
   renderSchema();
-  const t=total(); $('tHT').textContent=eur(t); $('tTVA').textContent=eur(t*0.2); $('tTTC').textContent=eur(t*1.2);
+  const t=total(), c=coef(), tc=t*c; $('tHT').textContent=eur(t); $('tCoef').textContent=c>1?'+ '+eur(tc-t):'—'; $('rHTc').style.display=c>1?'':'none'; $('tHTc').textContent=eur(tc); $('tTVA').textContent=eur(tc*0.2); $('tTTC').textContent=eur(tc*1.2);
 }
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 
@@ -755,7 +759,8 @@ function search(){
 function save(){ try{ localStorage.setItem('acvs-devis-demo',JSON.stringify({S,lines:lines.map(l=>l.miss?l:{c:items[l.i].code,s:items[l.i].sheet,qty:l.qty,r:l.role}),f:['cli','chan','cont'].map(k=>$(k).value)})); }catch(e){} }
 function load(){ try{ const o=JSON.parse(localStorage.getItem('acvs-devis-demo')||'null'); if(!o) return; S=Object.assign(S,o.S||{}); setSeg('segApp',S.app); setSeg('segType',S.type);
   lines=(o.lines||[]).map(l=>{ if(l.miss) return l; const it=find(l.c,l.s); return it?{i:it.i,qty:l.qty,role:l.r}:null; }).filter(Boolean);
-  (o.f||[]).forEach((v,k)=>$(['cli','chan','cont'][k]).value=v||''); }catch(e){} }
+  (o.f||[]).forEach((v,k)=>$(['cli','chan','cont'][k]).value=v||''); }catch(e){} $('coef').value=String(coef()); }
+$('coef').onchange=()=>{ S.coef=parseFloat($('coef').value)||1; render(); save(); };
 ['cli','chan','cont'].forEach(k=>$(k).oninput=save);
 $('reset').onclick=()=>{ lines=[]; S.gen=null; ['cli','chan','cont'].forEach(k=>$(k).value=''); $('notes').style.display='none'; render(); save(); };
 
@@ -790,8 +795,8 @@ async function buildPdf(){
     alternateRowStyles:{fillColor:[247,246,243]}, margin:{left:M,right:M}});
   let yy=doc.lastAutoTable.finalY+6; const t=total();
   if(yy>250){ doc.addPage(); yy=20; }
-  const tot=[];
-  doc.setFontSize(10); tot.forEach(([k,v],j)=>{ doc.setFont('helvetica', j===2?'bold':'normal'); doc.text(k,W-M-60,yy); doc.text(v,W-M,yy,{align:'right'}); yy+=6; });
+  const c=coef(), tc=t*c; const tot=[];
+  doc.setFontSize(10); tot.forEach(([k,v],j)=>{ doc.setFont('helvetica', j===tot.length-1?'bold':'normal'); doc.text(k,W-M-80,yy); doc.text(v,W-M,yy,{align:'right'}); yy+=6; });
   yy+=4; doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(110,110,110);
   const lg=doc.splitTextToSize('Document de démonstration sans valeur commerciale, généré à partir de la gamme MT CAMINI. Les prix et les conditions sont communiqués aux installateurs partenaires. La composition proposée est indicative et doit être vérifiée par l\'installateur au regard du NF DTU 24.1 et des notices des fabricants.', W-2*M); if(yy+lg.length*3.4>287){doc.addPage(); yy=20;} doc.text(lg,M,yy);
   const sv=schemaSVG();
