@@ -321,8 +321,8 @@ function refreshCfg(){
   $('btnCoax').style.display = S.app==='granules'?'':'none'; $('btnVent').style.display = S.app==='granules'?'':'none';
   $('bVent').style.display = S.type==='vent'?'':'none';
   { const ar=$('vPos').value==='arriere'; $('wVL').style.display=ar?'':'none';
-    $('vTxt').textContent = ar ? 'Sortie arrière : Té 90° fumées-air 1071, éléments droits (2 m minimum), brides murales 1354, coude 90° 1254, sortie ventouse 1409, rosace noire et colliers de jonction 1353. Toujours en noir, poêle à granulés uniquement.'
-      : 'Sortie dessus : élément 500 (1002), télescopique 1006 et élément 250 (1003), coude 90° 1254, sortie ventouse 1409, rosace noire et colliers de jonction 1353. Toujours en noir, poêle à granulés uniquement.'; }
+    $('vTxt').textContent = ar ? 'Sortie arrière : Té 90° fumées-air 1071, éléments droits (2 m minimum), brides murales 1354, coude 90° 1254, sortie ventouse 1409, rosace plate noire 2313 et colliers de jonction 1353. Toujours en noir, poêle à granulés uniquement.'
+      : 'Sortie dessus : élément 500 (1002), télescopique 1006 et élément 250 (1003), coude 90° 1254, sortie ventouse 1409, rosace plate noire 2313 et colliers de jonction 1353. Toujours en noir, poêle à granulés uniquement.'; }
   $('bDp').style.display = S.type==='dp'?'':'none';
   $('bCoax').style.display = S.type==='coax'?'':'none';
   $('bRacc').style.display = (S.type==='coax'||S.type==='vent')?'none':'';
@@ -500,7 +500,7 @@ function generate(auto){
     add(find('1254-ZC08',SH),1,`Coude 90° coax ${lbl}`,'c_c90');
     { const nJ=cnt(['c_te','c_droit','c_tel','c_c90']); add(find('1353-ZC08',SH),nJ,`Collier de jonction coax ${lbl}`,'v_col'); notes.push(`Colliers de jonction 1353 : un par élément (${nJ}).`); }
     add(find('1409-ZC08',SH),1,`Sortie ventouse avec 2 rosaces coax ${lbl}`,'c_ventouse');
-    add(find('1414-C08','COASSIALE INOX-INOX'),1,`Rosace noire Ø125`,'v_ros');
+    add(find('2313-ZC08',SH),1,`Rosace plate 0°-21° noire coax ${lbl}`,'v_ros');
     notes.push(`Ventouse horizontale : ${ar?String(vL).replace('.',',')+' m de conduit vertical':'sortie dessus, 1002 + télescopique 1006 + 1003'}, coude 90° puis sortie ventouse. Position du terminal à vérifier selon la notice du poêle et la réglementation des appareils étanches (distances aux ouvrants, au sol, aux limites de propriété).`);
   }
   if(S.type==='pignon'){
