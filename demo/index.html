@@ -372,6 +372,7 @@ function generate(auto){
       add(cd?find(`C-${dd(cd)}/3`,'ACCESSORI'):null, nCP, `Coquille isolante Ø${extDia}`, 'f_coq');
       if(cd && cd!==extDia) notes.push(`Coquille : pas de C-XX/3 en Ø${extDia}, coquille Ø${cd} (C-${dd(cd)}/3) proposée.`);
       notes.push(`Traversée de plancher avec combles perdus (×${nCP}) : collier de soutien inox + coquille isolante au Ø extérieur du conduit (Ø${extDia}).`);
+      if(S.type==='dp'){ add(ailes, 1, `Support avec ailes réglables ${lbl}`, 'f_ailes'); notes.push(`Support avec ailes réglables (2357F) pour fixer le conduit à la charpente.`); }
     } else add(ailes, 1, `Support avec ailes réglables ${lbl}`, 'f_ailes');
     if($(S.type==='dp'?'dRos':'cRos').checked) add(ros,1,`Rosace de plafond ${lbl}`,'f_rosace');
     if(nPH>0) add(ros,nPH,`Rosace de plafond ${lbl}`,'f_rosace_ph');
@@ -628,7 +629,9 @@ function schemaSVG(){
       else g+=pipeV(AX,yL,ry-60,wd,INOX,INOXS);
       pushA('d_droit',[X2+wd/2,(fCP-110+ry2)/2]); }
     // traversée combles perdus / plafonds
-    g+=`<rect x="${AX-wd/2-14}" y="${fCP-8}" width="${wd+28}" height="5" fill="#8b949c"/>`; pushA('f_support',[AX+wd/2+14,fCP-6]); pushA('f_ailes',[AX+wd/2+14,fCP-6]); pushA('f_bride',[AX+wd/2,fCP-22]);
+    g+=`<rect x="${AX-wd/2-14}" y="${fCP-8}" width="${wd+28}" height="5" fill="#8b949c"/>`; pushA('f_support',[AX+wd/2+14,fCP-6]); pushA('f_bride',[AX+wd/2,fCP-22]);
+    if(G.nCP>0 && qty.f_ailes){ const ya=ry+42; g+=`<rect x="${X2-wd/2-16}" y="${ya-3}" width="${wd+32}" height="6" fill="#6b7279"/><rect x="${X2-wd/2-16}" y="${ya-9}" width="4" height="12" fill="#6b7279"/><rect x="${X2+wd/2+12}" y="${ya-9}" width="4" height="12" fill="#6b7279"/>`; pushA('f_ailes',[X2+wd/2+16,ya]); }
+    else pushA('f_ailes',[AX+wd/2+14,fCP-6]);
     g+=`<rect x="${AX-wd/2-8}" y="${fCP-46}" width="8" height="40" fill="#e9d48a" stroke="#b39b42"/><rect x="${AX+wd/2}" y="${fCP-46}" width="8" height="40" fill="#e9d48a" stroke="#b39b42"/>`; pushA('f_coq',[AX+wd/2+8,fCP-36]);
     g+=`<rect x="${AX-wd/2-12}" y="${fCP+6}" width="${wd+24}" height="5" fill="#d0d5da" stroke="#8b949c"/>`; pushA('f_rosace',[AX-wd/2-12,fCP+8]);
     if(fPH){ g+=`<rect x="${AX-wd/2-12}" y="${fPH+6}" width="${wd+24}" height="5" fill="#d0d5da" stroke="#8b949c"/>`; pushA('f_rosace_ph',[AX+wd/2+12,fPH+8]); pushA('f_rosace',[AX-wd/2-12,fPH+8]); }
