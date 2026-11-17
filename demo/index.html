@@ -171,6 +171,9 @@ td input.q{width:64px;padding:6px;text-align:right}
         <option value="2344" selected>Pente 20° à 45°</option><option value="2345">Pente 45° à 60°</option></select></div>
       <div><label for="dHat">Chapeau</label><select id="dHat">
         <option value="TERCOP">Antivent couvert</option><option value="TERANT">Antivent</option><option value="TERPAR">Chinois</option></select></div>
+      <div><label for="d15">Coudes 15° (dévoiement)</label><input type="number" id="d15" min="0" step="1" value="0"></div>
+      <div><label for="d30">Coudes 30° (dévoiement)</label><input type="number" id="d30" min="0" step="1" value="0"></div>
+      <div><label for="d45">Coudes 45° (dévoiement)</label><input type="number" id="d45" min="0" step="1" value="0"></div>
     </div>
     <label class="chk"><input type="checkbox" id="dRos" checked> Rosace de plafond</label>
   </div>
@@ -201,6 +204,9 @@ td input.q{width:64px;padding:6px;text-align:right}
       <div><label for="eFin">Finition</label><select id="eFin"><option value="inox">Inox</option><option value="noir">Peint noir</option></select></div>
       <div><label for="eBri">Brides murales</label><select id="eBri"><option value="2351">Distance au mur 50 à 80 mm (2351)</option><option value="2361">Distance au mur 70 à 100 mm (2361)</option></select></div>
       <div><label for="eHat">Chapeau</label><select id="eHat"><option value="TERCOP">Antivent couvert</option><option value="TERANT">Antivent</option><option value="TERPAR">Chinois</option></select></div>
+      <div><label for="e15">Coudes 15° (dévoiement)</label><input type="number" id="e15" min="0" step="1" value="0"></div>
+      <div><label for="e30">Coudes 30° (dévoiement)</label><input type="number" id="e30" min="0" step="1" value="0"></div>
+      <div><label for="e45">Coudes 45° (dévoiement)</label><input type="number" id="e45" min="0" step="1" value="0"></div>
     </div>
     <label class="chk"><input type="checkbox" id="eHaub"> Bride de haubanage (dépassement important au-dessus du toit)</label>
   </div>
@@ -414,6 +420,10 @@ function generate(auto){
       }
     }
   }
+  function devoiement(p,P,T,SH,dpD){
+    let n=0; [15,30,45].forEach(a=>{ const q=Math.max(0,Math.round(+$(p+a).value||0)); n+=q; add(find(`${P}${T}.25CURV${a}`,SH),q,`Coude ${a}° Eco 25 Ø${dpD}`,p+'_c'+a); });
+    if(n) notes.push(`Dévoiement : ${n} coude${n>1?'s':''} Eco 25. Vérifiez l'angle et le nombre de dévoiements admis par le NF DTU 24.1, la notice du poêle et, le cas échéant, la note de calcul du conduit.`);
+  }
   if(S.type==='dp'){
     const noir=$('dFin').value==='noir', P=noir?'NER':'D5A', X=noir?'Z':'A', SH=noir?'ECO 25 NERO':'ECO 25 INOX';
     const dps=[80,100,130,150,180,200]; const dpD = dps.find(x=>x>=dia) || 200; const E=dd(dpD), T=d3(dpD);
@@ -423,11 +433,12 @@ function generate(auto){
     const len=Math.max(500,(+$('dL').value||0)*1000) - (ins?0:500);
     const lens2=[[1000,'LIN100'],[500,'LIN050'],[250,'LIN025']].filter(([l,c])=>find(`${P}${T}.25${c}`,SH));
     if(len>0){ const dec=decompose(len,lens2); for(const c in dec) add(find(`${P}${T}.25${c}`,SH),dec[c],`Élément droit Eco 25 Ø${dpD}`,'d_droit'); }
+    devoiement('d',P,T,SH,dpD);
     crossings(first([`2357F-${X}${E}`,`2357F-A${E}`],SH), first([`2900-${X}${E}`,`2900-A${E}`],SH), first([`2360-${X}${E}`],SH), first([`2333-${X}${E}`],SH), dpD+50, `Ø${dpD}/25`);
     add(first([`${$('dRoof').value}-${X}${E}`],SH),1,`Solin Ø${dpD}/25`,'x_solin');
     add(first([`2306-${X}${E}`],SH),1,`Collerette pour solin Ø${dpD}/25`,'x_coll');
     add(first([`${P}${T}.25${$('dHat').value}`],SH),1,`Chapeau Ø${dpD}/25`,'x_chap');
-    const nElD=cnt(['d_liaison','d_droit']); add(first([`2360-${X}${E}`,`2360-A${E}`],SH),nElD,`Bride de sécurité Ø${dpD}/25`,'f_bride'); notes.push(`Brides de sécurité 2360 : une par élément Eco 25 (${nElD}).`);
+    const nElD=cnt(['d_liaison','d_droit','d_c15','d_c30','d_c45']); add(first([`2360-${X}${E}`,`2360-A${E}`],SH),nElD,`Bride de sécurité Ø${dpD}/25`,'f_bride'); notes.push(`Brides de sécurité 2360 : une par élément Eco 25 (${nElD}).`);
     notes.push(`Débouché : à vérifier selon le DTU 24.1 (hauteur au-dessus du faîtage et des obstacles voisins). Ajoutez au besoin des brides murales ou un support complémentaire.`);
   }
   if(coax){
@@ -471,9 +482,10 @@ function generate(auto){
     add(first([`2108-${X}${E}`,`2108-A${E}`],SH),1,`Équerre support à mur Ø${dpD}/25`,'e_equerre');
     const eH=Math.max(1,+$('eH').value||1);
     { const dec=decompose(eH*1000,lens2); for(const c in dec) add(find(`${P}${T}.25${c}`,SH),dec[c],`Élément droit Eco 25 Ø${dpD}`,'e_droit'); }
+    devoiement('e',P,T,SH,dpD);
     const nb=Math.max(2,Math.ceil(eH/1.5));
     add(first([`${$('eBri').value}-${X}${E}`,`${$('eBri').value}-A${E}`],SH),nb,`Bride murale Ø${dpD}/25`,'e_bride');
-    const nElP=cnt(['d_liaison','e_trav','e_te','e_droit']); add(first([`2360-${X}${E}`,`2360-A${E}`],SH),nElP,`Bride de sécurité Ø${dpD}/25`,'e_bs');
+    const nElP=cnt(['d_liaison','e_trav','e_te','e_droit','e_c15','e_c30','e_c45']); add(first([`2360-${X}${E}`,`2360-A${E}`],SH),nElP,`Bride de sécurité Ø${dpD}/25`,'e_bs');
     if($('eHaub').checked) add(first([`2352-${X}${E}`,`2352-A${E}`],SH),1,`Bride de haubanage Ø${dpD}/25`,'e_haub');
     add(first([`${P}${T}.25${$('eHat').value}`],SH),1,`Chapeau Ø${dpD}/25`,'x_chap');
     notes.push(`Conduit extérieur : traversée de mur en Eco 25 (${trav/10} cm pour un mur de ${$('eWall').value} cm), Té 90° avec tampon purge posé sur une équerre support, brides murales environ tous les 1,5 m (${nb}).`);
@@ -502,7 +514,7 @@ let G_LIAISON='Élément de liaison noir / Eco 25';
 const ROLE_NAME={r_tel:'Élément télescopique',r_droit:'Éléments droits',r_c30:'Coude 30°',r_c45:'Coude 45°',r_c90:'Coude 90°',r_te:'Té 90° avec tampon',r_manchon:'Raccord F/F anti-bistre',r_rosace:'Rosace',r_bride:'Brides murales',
 t_flex:'Tubage flexible',t_racc_bas:'Raccord flexible bas',t_racc_haut:'Raccord flexible haut',t_support:'Support à ailes',t_bride:'Bride de sécurité',t_solin:'Solin / plaque de sortie',t_coll:'Collerette',t_chap:'Chapeau',t_joint:'Raccord flexible-flexible',
 d_liaison:G_LIAISON,d_droit:'Éléments droits Eco 25',f_support:'Collier de soutien inox',f_ailes:'Support à ailes',f_bride:'Bride de sécurité',f_coq:'Coquille isolante',f_rosace:'Rosace de plafond',f_rosace_ph:'Rosace plancher habité',
-x_solin:'Solin',x_coll:'Collerette',x_chap:'Chapeau',c_te:'Té 90° coax',c_purge:'Tampon purge',c_tel:'Télescopique coax',c_droit:'Éléments droits coax',c_c30:'Coude 30° coax',c_c45:'Coude 45° coax',c_c90:'Coude 90° coax',c_bride:'Brides murales',c_ventouse:'Sortie ventouse',m_te:'Té 90° pour flexible',m_tampon:'Tampon purge',e_trav:'Traversée de mur Eco 25',e_coll:'Collerettes couvre-mur',e_te:'Té 90° DP',e_purge:'Tampon purge',e_equerre:'Équerre support à mur',e_droit:'Éléments droits Eco 25',e_bride:'Brides murales Eco 25',e_bs:'Bride de sécurité',e_haub:'Bride de haubanage'};
+x_solin:'Solin',x_coll:'Collerette',x_chap:'Chapeau',c_te:'Té 90° coax',c_purge:'Tampon purge',c_tel:'Télescopique coax',c_droit:'Éléments droits coax',c_c30:'Coude 30° coax',c_c45:'Coude 45° coax',c_c90:'Coude 90° coax',c_bride:'Brides murales',c_ventouse:'Sortie ventouse',m_te:'Té 90° pour flexible',m_tampon:'Tampon purge',e_trav:'Traversée de mur Eco 25',e_coll:'Collerettes couvre-mur',e_te:'Té 90° DP',e_purge:'Tampon purge',e_equerre:'Équerre support à mur',e_droit:'Éléments droits Eco 25',e_bride:'Brides murales Eco 25',e_bs:'Bride de sécurité',e_haub:'Bride de haubanage',d_c15:'Coude 15° Eco 25',d_c30:'Coude 30° Eco 25',d_c45:'Coude 45° Eco 25',e_c15:'Coude 15° Eco 25',e_c30:'Coude 30° Eco 25',e_c45:'Coude 45° Eco 25'};
 function schemaSVG(){
   const G=S.gen; if(!G) return '';
   ROLE_NAME.d_liaison = G.app==='insert'?'Adaptateur inox / Eco 25':'Élément de liaison noir / Eco 25';
@@ -583,6 +595,12 @@ function schemaSVG(){
   const CR={tel:'c_tel',droit:'c_droit',bride:'c_bride',c30:'c_c30',c45:'c_c45',c90:'c_c90'};
   const nR={n30:qty.r_c30||0,n45:qty.r_c45||0,n90:qty.r_c90||0}, nC={n30:qty.c_c30||0,n45:qty.c_c45||0,n90:qty.c_c90||0};
   const back=G.pos==='arriere';
+  // dévoiement dans un conduit vertical : du point bas (x1,yb) au point haut (x2,yh)
+  const devRoles=p=>['15','30','45'].filter(a=>qty[p+'_c'+a]>0).map(a=>p+'_c'+a);
+  const devoie=(p,x1,yb,x2,yh,wd)=>{ const h=wd/2; let s=`<polygon points="${x1-h},${yb} ${x1+h},${yb} ${x2+h},${yh} ${x2-h},${yh}" fill="${INOX}" stroke="${INOXS}"/>`;
+    [[x1,yb],[x2,yh]].forEach(([x,y])=>s+=`<rect x="${x-h-2}" y="${y-3}" width="${wd+4}" height="6" fill="${INOXS}"/>`);
+    const rs=devRoles(p); rs.forEach((r,k)=>pushA(r, k%2? [x2+h+2,yh] : [x1+h+2,yb])); if(rs.length===1) pushA(rs[0],[x2+h+2,yh]);
+    return s; };
   // départ : renvoie [stoveX, routeStart] pour une abscisse de départ x0 donnée
   const placeStove=(x0,w,coax)=>{ let s='';
     if(back){ const sx=x0-SW-34; s+=stove(sx); const yo=BACKY; s+=`<rect x="${sx+SW}" y="${yo-w/2}" width="${x0-sx-SW}" height="${w}" fill="${coax?INOX:RC}" stroke="${coax?INOXS:RCE}"/>`;
@@ -593,7 +611,8 @@ function schemaSVG(){
   const vertical = G.type==='dp' || (G.type==='coax' && G.out==='toit');
   if(vertical){
     const coax=G.type==='coax', w=coax?24:(ins?18:16), wd=coax?24:30;
-    const fPH = G.nPH>0 ? 420 : null, fCP = G.nPH>0 ? 250 : 330, ry=roofY(AX);
+    const fPH = G.nPH>0 ? 420 : null, fCP = G.nPH>0 ? 250 : 330;
+    const dev=!coax && devRoles('d').length>0, X2=dev?AX+34:AX, ry=roofY(X2), ry2=ry;
     g+=roof();
     if(fPH) g+=floor(fPH,`Plancher habité${G.nPH>1?' (×'+G.nPH+')':''}`,[[AX-wd/2-6,AX+wd/2+6]]);
     g+=floor(fCP, G.nCP>0?'Plancher – combles perdus au-dessus':'Plafond',[[AX-wd/2-6,AX+wd/2+6]]);
@@ -604,15 +623,18 @@ function schemaSVG(){
     g+=drawRoute(R,w,coax?INOX:RC,coax?INOXS:RCE);
     g+=dress(R,w,coax?CR:RR,coax?{}:{rosaceAt:[[AX,yEnd+2],0]});
     if(coax){ g+=pipeV(AX,yEnd,ry-60,wd,INOX,INOXS); if(!A.c_droit) pushA('c_droit',[AX+wd/2,(fCP+ry)/2+20]); else pushA('c_droit',[AX+wd/2,(fCP+ry)/2+20]); }
-    else { const yL=yEnd-52; g+=`<rect x="${AX-wd/2}" y="${yL}" width="${wd}" height="26" fill="${INOX}" stroke="${INOXS}"/><rect x="${AX-12}" y="${yL+26}" width="24" height="26" fill="#55595e"/>`; pushA('d_liaison',[AX+12,yL+40]); g+=pipeV(AX,yL,ry-60,wd,INOX,INOXS); pushA('d_droit',[AX+wd/2,(fCP+ry)/2+10]); }
+    else { const yL=yEnd-52; g+=`<rect x="${AX-wd/2}" y="${yL}" width="${wd}" height="26" fill="${INOX}" stroke="${INOXS}"/><rect x="${AX-12}" y="${yL+26}" width="24" height="26" fill="#55595e"/>`; pushA('d_liaison',[AX+12,yL+40]);
+      if(dev){ const yb=fCP-62, yh=yb-48; g+=pipeV(AX,yL,yb,wd,INOX,INOXS)+devoie('d',AX,yb,X2,yh,wd)+pipeV(X2,yh,ry2-60,wd,INOX,INOXS); }
+      else g+=pipeV(AX,yL,ry-60,wd,INOX,INOXS);
+      pushA('d_droit',[X2+wd/2,(fCP-110+ry2)/2]); }
     // traversée combles perdus / plafonds
     g+=`<rect x="${AX-wd/2-14}" y="${fCP-8}" width="${wd+28}" height="5" fill="#8b949c"/>`; pushA('f_support',[AX+wd/2+14,fCP-6]); pushA('f_ailes',[AX+wd/2+14,fCP-6]); pushA('f_bride',[AX+wd/2,fCP-22]);
     g+=`<rect x="${AX-wd/2-8}" y="${fCP-46}" width="8" height="40" fill="#e9d48a" stroke="#b39b42"/><rect x="${AX+wd/2}" y="${fCP-46}" width="8" height="40" fill="#e9d48a" stroke="#b39b42"/>`; pushA('f_coq',[AX+wd/2+8,fCP-36]);
     g+=`<rect x="${AX-wd/2-12}" y="${fCP+6}" width="${wd+24}" height="5" fill="#d0d5da" stroke="#8b949c"/>`; pushA('f_rosace',[AX-wd/2-12,fCP+8]);
     if(fPH){ g+=`<rect x="${AX-wd/2-12}" y="${fPH+6}" width="${wd+24}" height="5" fill="#d0d5da" stroke="#8b949c"/>`; pushA('f_rosace_ph',[AX+wd/2+12,fPH+8]); pushA('f_rosace',[AX-wd/2-12,fPH+8]); }
-    g+=`<polygon points="${AX-wd/2-26},${ry+12} ${AX+wd/2+26},${ry-8} ${AX+wd/2+4},${ry-24} ${AX-wd/2-4},${ry-14}" fill="#9aa1a8"/>`; pushA('x_solin',[AX+wd/2+20,ry-6]);
-    g+=`<rect x="${AX-wd/2-6}" y="${ry-34}" width="${wd+12}" height="7" fill="#7d858d"/>`; pushA('x_coll',[AX+wd/2+6,ry-31]);
-    g+=`<polygon points="${AX-wd/2-14},${ry-66} ${AX},${ry-84} ${AX+wd/2+14},${ry-66}" fill="${INOXS}"/><rect x="${AX-wd/2}" y="${ry-66}" width="${wd}" height="8" fill="none" stroke="${INOXS}"/>`; pushA('x_chap',[AX+wd/2+10,ry-72]);
+    g+=`<polygon points="${X2-wd/2-26},${ry+12} ${X2+wd/2+26},${ry-8} ${X2+wd/2+4},${ry-24} ${X2-wd/2-4},${ry-14}" fill="#9aa1a8"/>`; pushA('x_solin',[AX+wd/2+20,ry-6]);
+    g+=`<rect x="${X2-wd/2-6}" y="${ry-34}" width="${wd+12}" height="7" fill="#7d858d"/>`; pushA('x_coll',[AX+wd/2+6,ry-31]);
+    g+=`<polygon points="${X2-wd/2-14},${ry-66} ${X2},${ry-84} ${X2+wd/2+14},${ry-66}" fill="${INOXS}"/><rect x="${X2-wd/2}" y="${ry-66}" width="${wd}" height="8" fill="none" stroke="${INOXS}"/>`; pushA('x_chap',[AX+wd/2+10,ry-72]);
   } else if(G.type==='murconduit'){
     const WX0=228, WX1=300, CX=264, top=72, w=ins?18:16;
     g+=roof();
@@ -649,15 +671,17 @@ function schemaSVG(){
     g+=`<rect x="${WX0}" y="${yE-wd/2}" width="${PX-WX0}" height="${wd}" fill="${INOX}" stroke="${INOXS}"/>`; pushA('e_trav',[WX0+13,yE+wd/2]);
     g+=`<rect x="${WX0-4}" y="${yE-wd/2-8}" width="4" height="${wd+16}" fill="#7d858d"/><rect x="${WX1}" y="${yE-wd/2-8}" width="4" height="${wd+16}" fill="#7d858d"/>`; pushA('e_coll',[WX1+4,yE+wd/2+6]); pushA('e_coll',[WX0-4,yE+wd/2+6]);
     const ytop=topW-70;
-    g+=pipeV(PX,ytop,yE-wd/2-4,wd,INOX,INOXS);
+    const devE=devRoles('e').length>0, PX2=devE?PX+24:PX;
+    if(devE){ const yb=topW-2, yh=yb-40; g+=pipeV(PX,yb,yE-wd/2-4,wd,INOX,INOXS)+devoie('e',PX,yb,PX2,yh,wd)+pipeV(PX2,ytop,yh,wd,INOX,INOXS); }
+    else g+=pipeV(PX,ytop,yE-wd/2-4,wd,INOX,INOXS);
     g+=`<rect x="${PX-wd/2-3}" y="${yE-wd/2-4}" width="${wd+6}" height="${wd+8}" fill="${INOX}" stroke="${INOXS}"/>`; pushA('e_te',[PX+wd/2+3,yE]);
     g+=pipeV(PX,yE+wd/2+4,yE+wd/2+26,wd-6,INOX,INOXS); pushA('e_purge',[PX+wd/2-3,yE+wd/2+20]);
     g+=`<polygon points="${WX1},${yE+wd/2+28} ${PX+wd/2},${yE+wd/2+28} ${WX1},${yE+wd/2+60}" fill="#6b7279"/>`; pushA('e_equerre',[PX+wd/2-8,yE+wd/2+32]);
-    pushA('e_droit',[PX+wd/2,(ytop+topW)/2+10]); pushA('e_droit',[PX+wd/2,(topW+yE)/2+20]);
+    pushA('e_droit',[PX2+wd/2,devE?ytop+14:(ytop+topW)/2+10]); pushA('e_droit',[PX+wd/2,(topW+yE)/2+20]);
     const nb=Math.min(qty.e_bride||0,5); for(let k=0;k<nb;k++){ const yb=(yE-55)-((yE-55)-(topW+10))*(nb>1?k/(nb-1):0); g+=`<rect x="${WX1}" y="${yb-3}" width="${PX-wd/2-WX1}" height="6" fill="#6b7279"/>`; pushA('e_bride',[PX-wd/2,yb]); }
     g+=`<rect x="${PX-wd/2-2}" y="${yE-wd/2-36}" width="${wd+4}" height="5" fill="#7d858d"/>`; pushA('e_bs',[PX+wd/2+2,yE-wd/2-34]);
-    if(qty.e_haub){ g+=`<line x1="${PX}" y1="${ytop+26}" x2="${WX1+14}" y2="${topW-10}" stroke="#6b7279" stroke-width="2"/>`; pushA('e_haub',[PX+wd/2,ytop+26]); g+=`<rect x="${PX-wd/2-2}" y="${ytop+23}" width="${wd+4}" height="5" fill="#6b7279"/>`; }
-    g+=`<polygon points="${PX-wd/2-14},${ytop} ${PX},${ytop-18} ${PX+wd/2+14},${ytop}" fill="${INOXS}"/>`; pushA('x_chap',[PX+wd/2+10,ytop-6]);
+    if(qty.e_haub){ g+=`<line x1="${PX2}" y1="${ytop+26}" x2="${WX1+14}" y2="${topW-10}" stroke="#6b7279" stroke-width="2"/>`; pushA('e_haub',[PX2+wd/2,ytop+26]); g+=`<rect x="${PX2-wd/2-2}" y="${ytop+23}" width="${wd+4}" height="5" fill="#6b7279"/>`; }
+    g+=`<polygon points="${PX2-wd/2-14},${ytop} ${PX2},${ytop-18} ${PX2+wd/2+14},${ytop}" fill="${INOXS}"/>`; pushA('x_chap',[PX2+wd/2+10,ytop-6]);
   } else if(G.type==='tubage'){
     const CX=215, cw=60, top=72, base=360, w=G.flexDirect?14:(ins?18:16);
     g+=roof(); g+=floor(290,'Plafond',[[CX-cw/2,CX+cw/2]]);
