@@ -147,7 +147,7 @@ td input.q{width:64px;padding:6px;text-align:right}
     <div id="wRaccO">
     <label class="chk" id="wTel"><input type="checkbox" id="rTel" checked> Élément télescopique pour l'ajustement</label>
     <label class="chk" id="wRos"><input type="checkbox" id="rRos" checked> Rosace(s) de finition</label>
-    <label class="chk"><input type="checkbox" id="rBri" checked> Brides murales (1 par mètre)</label>
+    <label class="chk" id="wBri"><input type="checkbox" id="rBri" checked> Brides murales (1 par mètre)</label>
     </div>
   </div>
 
@@ -195,7 +195,7 @@ td input.q{width:64px;padding:6px;text-align:right}
       <div class="cToit"><label for="cHat">Chapeau</label><select id="cHat"><option value="1405">Antivent</option><option value="1401">Chinois</option><option value="1403">Conique</option></select></div>
     </div>
     <label class="chk" id="wCTel"><input type="checkbox" id="cTel" checked> Élément télescopique pour l'ajustement</label>
-    <label class="chk"><input type="checkbox" id="cBri" checked> Brides murales (1 par mètre)</label>
+    <label class="chk" id="wCBri"><input type="checkbox" id="cBri" checked> Brides murales (1 par mètre)</label>
     <label class="chk cToit"><input type="checkbox" id="cRos" checked> Rosace de plafond</label>
   </div>
 
@@ -317,7 +317,10 @@ function refreshCfg(){
   $('wRaccF').style.display = flexDirect?'none':''; $('wRaccO').style.display = flexDirect?'none':'';
   $('wPos').style.display = (ins||S.type==='murconduit')?'none':'';
   $('wTel').style.display = (S.type==='murconduit' || (!ins && $('rPos').value==='arriere'))?'none':'';
-  $('wCTel').style.display = $('cPos').value==='arriere'?'none':''; $('wRos').style.display = ins?'none':'';
+  $('wCTel').style.display = $('cPos').value==='arriere'?'none':'';
+  // sortie dessus : jamais de bride murale
+  $('wBri').style.display = (ins || (S.type!=='murconduit' && $('rPos').value==='dessus'))?'none':'';
+  $('wCBri').style.display = $('cPos').value==='dessus'?'none':''; $('wRos').style.display = ins?'none':'';
   $('bTub').style.display = (S.type==='tubage'||S.type==='murconduit')?'':'none';
   $('bExt').style.display = S.type==='pignon'?'':'none';
   if(S.app!=='granules' && (S.type==='coax'||S.type==='vent')){ S.type='tubage'; setSeg('segType','tubage'); }
@@ -377,7 +380,7 @@ function generate(auto){
   }
   if(!ins && $('rRos').checked && rL>0 && S.type!=='dp') add(first([`1411-N${D}`,`1413-N${D}`],RS),1,`Rosace Ø${dia} noire`,'r_rosace');
   if(ins && S.type==='murconduit') add(first([`1309-${D}`],'MONO ECO 50'),1,`Collerette couvre-mur Ø${dia} inox`,'r_rosace');
-  if($('rBri').checked && rL>0) add(first(ins?[`1351-${D}`]:[`1351-N${D}`],RS), Math.max(1,Math.ceil(rL/1000)), `Bride murale Ø${dia}`,'r_bride');
+  if($('rBri').checked && rL>0 && pos!=='dessus') add(first(ins?[`1351-${D}`]:[`1351-N${D}`],RS), Math.max(1,Math.ceil(rL/1000)), `Bride murale Ø${dia}`,'r_bride');
   if(ins) notes.push(flexDirect?`Insert : flexible raccordé directement sur la buse de l'insert, aucun tuyau émaillé noir.`:`Insert : raccordement en inox simple paroi uniquement, pas d'émaillé noir.`);
 
   // ---- Traversées de plancher (conduit isolé / coaxial en toiture)
@@ -472,7 +475,7 @@ function generate(auto){
     add(find(`1252-${CX}${D}`,SH), +$('c30').value||0, `Coude 30° coax ${lbl}`,'c_c30');
     add(find(`1253-${CX}${D}`,SH), +$('c45').value||0, `Coude 45° coax ${lbl}`,'c_c45');
     add(find(`1254-${CX}${D}`,SH), +$('c90').value||0, `Coude 90° coax ${lbl}`,'c_c90');
-    if($('cBri').checked && cL>0) add(find(`1354-${CX}${D}`,SH), Math.max(1,Math.ceil(cL/1000)), `Bride murale coax ${lbl}`,'c_bride');
+    if($('cBri').checked && cL>0 && $('cPos').value!=='dessus') add(find(`1354-${CX}${D}`,SH), Math.max(1,Math.ceil(cL/1000)), `Bride murale coax ${lbl}`,'c_bride');
     if(!coaxToit){
       add(find(`1409-${CX}${D}`,SH),1,`Sortie ventouse avec 2 rosaces ${lbl}`,'c_ventouse');
       notes.push(`Ventouse murale : position du terminal à vérifier selon la notice du poêle et la réglementation des appareils étanches (distances aux ouvrants, au sol, aux limites de propriété).`);
