@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#1E1C1A">
+<meta name="theme-color" content="#16223F">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Devis ACVS">
@@ -20,14 +20,14 @@
 <meta property="og:url" content="https://stephaneacvs.github.io/devis-acvs/demo/">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <style>
-:root{--ink:#1E1C1A;--muted:#66707a;--line:#e3e6ea;--bg:#F3EFE7;--card:#fff;--accent:#C4511A;--accent2:#9A3E12;--ok:#2f7a4a;--warn:#a86400;--warnbg:#fff6e5}
+:root{--ink:#16223F;--muted:#66707a;--line:#e3e6ea;--bg:#F4F5F8;--card:#fff;--accent:#6E6960;--accent2:#4F4B45;--ok:#2f7a4a;--warn:#a86400;--warnbg:#fff6e5}
 *{box-sizing:border-box}
 body{margin:0;font-family:Inter,system-ui,sans-serif;color:var(--ink);background:var(--bg);font-size:15px;line-height:1.45}
-header{background:#1E1C1A;color:#fff;padding:18px 20px}
+header{background:#16223F;color:#fff;padding:18px 20px}
 header .wrap{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
 header h1{margin:0;font-size:20px;letter-spacing:.2px}
 header h1 span{color:#f0a37f;font-weight:500}
@@ -85,7 +85,7 @@ td input.q{width:64px;padding:6px;text-align:right}
 .sr .d code{font-size:12px;color:var(--accent2)}
 .sr .d small{color:var(--muted);display:block;font-size:11.5px}
 .sr .p{white-space:nowrap;font-weight:600;font-size:13px}
-.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#1E1C1A;color:#fff;padding:10px 16px;border-radius:8px;font-size:14px;opacity:0;transition:.25s;pointer-events:none;z-index:9}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#16223F;color:#fff;padding:10px 16px;border-radius:8px;font-size:14px;opacity:0;transition:.25s;pointer-events:none;z-index:9}
 .toast.show{opacity:1}
 .legal{font-size:11.5px;color:var(--muted);margin-top:14px}
 @media (max-width:640px){
@@ -94,53 +94,56 @@ td input.q{width:64px;padding:6px;text-align:right}
   td,th{padding:7px 4px}
   .seg button{min-width:100%}
 }
-/* === STYLE CARNET DE CHANTIER (retirer ce bloc pour revenir au style précédent) === */
-:root{--ink:#1E1C1A;--muted:#6E6960;--line:#D9D2C4;--bg:#F3EFE7;--card:#FBF9F5;--accent:#C4511A;--accent2:#9A3E12;--ok:#2F6B4F;--okbg:transparent;--ko:#A3271C;--kobg:transparent;--sel:#6E6960}
-body{font-size:16px;font-variant-numeric:tabular-nums}
-header{background:#1E1C1A}
-header h1 span,header a{color:#E8875A}
-header p{color:#D8D2C6}
-.badge{background:transparent;color:#D8D2C6;border:1px solid #6E6960;border-radius:2px}
-.card{background:var(--card);border:1px solid var(--line);border-top:2px solid var(--ink);border-radius:2px}
-.card h2{font-size:19px}
-.card h2::after{content:"";flex:1;height:1px;background:var(--ink)}
-.card h2 .n{background:none;color:var(--accent);border-radius:0;width:auto;height:auto;font-size:17px;font-weight:700}
-.sub{font-size:14px}
-label{font-size:14px;color:var(--ink)}
-select,input[type=text],input[type=number],input[type=search]{border:1.5px solid var(--ink);border-radius:2px;background:#fff;min-height:46px;font-size:16px}
-input:focus,select:focus{outline:2px solid #E8875A;border-color:var(--accent)}
+/* === STYLE SITE ACVS (bleu nuit + cendre) — retirer ce bloc pour revenir au style d'origine === */
+:root{--ink:#16223F;--muted:#4A5470;--line:#D5D9E1;--bg:#F4F5F8;--card:#FFFFFF;--accent:#6E6960;--accent2:#4F4B45;--ok:#2F6B4F;--okbg:#E8F1EC;--ko:#A3271C;--kobg:#FBEBE9;--sel:#6E6960}
+body{font-family:'Source Sans 3',system-ui,sans-serif;font-size:16.5px;font-variant-numeric:tabular-nums}
+h1,h2,h3,h4,.btn,.verdict{font-family:Archivo,'Source Sans 3',sans-serif}
+header{background:#16223F}
+header h1{font-weight:800;letter-spacing:.02em;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+header h1 span{color:#C9CDD6;font-weight:600}
+header p{color:#C9CDD6}
+header a{color:#FFFFFF}
+.badge{background:transparent;color:#C9CDD6;border:1px solid #4A5470;border-radius:8px}
+.card{background:#FFFFFF;border:1px solid var(--line);border-radius:8px}
+.card h2{font-size:21px;font-weight:800;border-bottom:1px solid var(--ink);padding-bottom:6px;margin-bottom:10px}
+.card h2 .n{background:none;color:var(--accent);border-radius:0;width:auto;height:auto;font-size:18px;font-weight:800}
+.sub{font-size:14.5px}
+label{font-size:15px;color:var(--ink)}
+select,input[type=text],input[type=number],input[type=search]{border:1px solid #C9CDD6;border-radius:8px;background:#fff;min-height:48px;font-size:17px}
+input:focus,select:focus{outline:2px solid #4A5470;border-color:#4A5470}
 .block{border-top:1px solid var(--line)}
-.block h3{color:var(--accent);font-size:15px}
-.chk{font-size:15px}
-.chk input{width:20px;height:20px}
-.btn{border-radius:2px;min-height:48px;font-size:16px;font-weight:700}
-.btn.ghost{background:transparent;border:1.5px solid var(--ink)}
-.btn.ghost:hover{background:#ECE6DB}
-.note{border-radius:2px;background:#FBF3E4;border:1px solid #E2C68F}
-.seg button{border:1.5px solid var(--ink);border-radius:2px;background:transparent}
-.seg button.on{background:var(--sel);border-color:var(--sel);color:#F3EFE7;box-shadow:none}
-.seg button.on small{color:#F3EFE7}
-table{font-size:14.5px}
-th{color:var(--muted);border-bottom:1.5px solid var(--ink)}
-td{border-bottom:1px dashed var(--line)}
-td.ref,.refm{font-family:Inter,system-ui,sans-serif;font-weight:600}
+.block h3{color:var(--muted);font-size:15px;font-weight:700}
+.chk{font-size:16px}
+.chk input{width:20px;height:20px;accent-color:#6E6960}
+.btn{border-radius:8px;min-height:50px;font-size:17px;font-weight:800;background:var(--accent)}
+.btn:hover{background:var(--accent2)}
+.btn.ghost{background:#FFFFFF;border:1px solid #C9CDD6;color:var(--ink)}
+.btn.ghost:hover{background:#F4F5F8}
+.note{border-radius:8px}
+.seg button{border:1px solid #C9CDD6;border-radius:8px;background:#FFFFFF}
+.seg button.on{background:var(--sel);border-color:var(--sel);color:#FFFFFF;box-shadow:none}
+.seg button.on small{color:#FFFFFF}
+table{font-size:15px}
+th{color:var(--muted);border-bottom:1px solid var(--ink)}
+td{border-bottom:1px solid #E6E8EE}
+td.ref,.refm{font-family:'Source Sans 3',system-ui,sans-serif;font-weight:700}
 .refm{color:var(--ink)}
-.search-res,.sug{border-radius:2px}
-.sr:hover,.sug div:hover,.sug div.on{background:#ECE6DB}
-.toast{border-radius:2px;background:#1E1C1A}
+.search-res,.sug{border-radius:8px}
+.sr:hover,.sug div:hover,.sug div.on{background:#F4F5F8}
+.toast{border-radius:8px;background:#16223F}
 .totals tr.big td{border-top:2px solid var(--ink)}
-.verdict{border-radius:0;font-size:17px;letter-spacing:.02em}
-.verdict.ok{background:transparent;color:var(--ok);border:3px solid var(--ok);outline:1px solid var(--ok);outline-offset:3px;transform:rotate(-1.2deg);margin:8px 6px 18px}
-.verdict.ko{background:transparent;color:var(--ko);border:3px solid var(--ko);outline:1px solid var(--ko);outline-offset:3px;transform:rotate(-1.2deg);margin:8px 6px 18px}
-.pill{border-radius:0;background:transparent!important;border:1px solid currentColor;padding:1px 7px}
-details summary{color:var(--accent)}
-/* === fin STYLE CARNET === */
+.verdict{border-radius:8px;font-weight:800;font-size:17px}
+.verdict.ok{background:var(--okbg);color:var(--ok);border:2px solid var(--ok)}
+.verdict.ko{background:var(--kobg);color:var(--ko);border:2px solid var(--ko)}
+details summary{color:var(--muted)}
+.logo-acvs{width:30px;height:30px;flex-shrink:0}
+/* === fin STYLE SITE ACVS === */
 #tbl th:nth-child(4),#tbl td:nth-child(4),#tbl th:nth-child(5),#tbl td:nth-child(5),.totals,.search-res .p{display:none!important}
 </style>
 </head>
 <body>
 <header><div class="wrap">
-  <div><h1>ACVS · <span>Devis fumisterie MT CAMINI</span></h1>
+  <div><h1><svg class="logo-acvs" viewBox="36 36 440 440" aria-hidden="true"><defs><linearGradient id="flacvs" x1="0.15" y1="0" x2="0.85" y2="1"><stop offset="0" stop-color="#FF9024"></stop><stop offset="0.45" stop-color="#F65B1E"></stop><stop offset="1" stop-color="#DE2418"></stop></linearGradient></defs><circle cx="256" cy="256" r="212" fill="none" stroke="#FFFFFF" stroke-width="22"></circle><path transform="translate(0 60)" fill-rule="evenodd" fill="url(#flacvs)" d="M 246 96 C 251 124 266 141 284 162 C 309 190 320 226 305 256 C 292 282 266 295 241 292 C 216 289 196 273 190 250 C 183 224 194 203 208 189 C 222 175 232 163 238 146 C 243 131 245 114 246 96 Z M 250 126 C 231 157 212 187 208 218 C 203 252 219 278 247 290 C 231 271 225 246 230 218 C 235 191 244 158 250 126 Z"></path></svg>ACVS <span>Devis fumisterie MT CAMINI</span></h1>
   <p>Composez votre installation, ajustez la liste et téléchargez votre devis indicatif.</p></div>
   <div class="badge">Version de démonstration · sans prix</div>
 </div></header>
@@ -640,7 +643,7 @@ function schemaSVG(){
   const RC=ins?'#b7bec5':'#2b2b2b', RCE=ins?'#7f8890':'#111';
   const rad=Math.PI/180, dir=th=>[Math.sin(th*rad),-Math.cos(th*rad)];
   const floor=(y,lbl,gaps=[])=>{ let r=`<rect x="0" y="${y-6}" width="300" height="12" fill="url(#hatch)" stroke="#9aa1a8" stroke-width="0.8"/>`; gaps.forEach(([a,b])=>r+=`<rect x="${a}" y="${y-7}" width="${b-a}" height="14" fill="#fff"/>`); return r+`<text x="4" y="${y-10}" font-size="10" fill="#7a828a">${lbl}</text>`; };
-  const roof=()=>`<polygon points="0,210 300,90 300,102 0,222" fill="#C4511A" opacity=".85"/><text x="8" y="190" font-size="10" fill="#7a828a">Toiture</text>`;
+  const roof=()=>`<polygon points="0,210 300,90 300,102 0,222" fill="#6E6960" opacity=".85"/><text x="8" y="190" font-size="10" fill="#7a828a">Toiture</text>`;
   const roofY=x=>210-0.4*x;
   const pipeV=(x,y1,y2,w,fill,stroke)=>`<rect x="${x-w/2}" y="${Math.min(y1,y2)}" width="${w}" height="${Math.abs(y2-y1)}" fill="${fill}" stroke="${stroke||fill}" stroke-width="1"/>`;
   // ---- poêle de profil (façade à gauche, dos à droite)
@@ -774,7 +777,7 @@ function schemaSVG(){
   } else if(G.type==='pignon'){
     const WX0=196, WX1=222, PX=258, w=ins?18:16, wd=30, topW=150;
     g+=`<rect x="${WX0}" y="${topW}" width="${WX1-WX0}" height="${GR-topW}" fill="url(#hatch)" stroke="#9aa1a8"/>`;
-    g+=`<polygon points="${WX0-150},${topW+50} ${WX1+14},${topW-14} ${WX1+14},${topW-4} ${WX0-150},${topW+60}" fill="#C4511A" opacity=".85"/><text x="${WX0-4}" y="${topW+80}" text-anchor="end" font-size="10" fill="#7a828a">Mur pignon</text><text x="${WX1+6}" y="${GR-8}" font-size="10" fill="#7a828a">Extérieur</text>`;
+    g+=`<polygon points="${WX0-150},${topW+50} ${WX1+14},${topW-14} ${WX1+14},${topW-4} ${WX0-150},${topW+60}" fill="#6E6960" opacity=".85"/><text x="${WX0-4}" y="${topW+80}" text-anchor="end" font-size="10" fill="#7a828a">Mur pignon</text><text x="${WX1+6}" y="${GR-8}" font-size="10" fill="#7a828a">Extérieur</text>`;
     g+=`<rect x="0" y="324" width="${WX0}" height="12" fill="url(#hatch)" stroke="#9aa1a8" stroke-width="0.8"/><text x="4" y="320" font-size="10" fill="#7a828a">Plafond</text>`;
     const sx=20; g+=stove(sx);
     let R;
@@ -862,12 +865,12 @@ function schemaSVG(){
   let y=14; lab.forEach(L=>{ L.rl=wrap(L.refs); L.h=14+L.rl.length*13; L.y=Math.max(L.a[1]-10,y); y=L.y+L.h+6; });
   const over=y-(H-34); if(over>0){ let shift=over; for(let k=lab.length-1;k>=0&&shift>0;k--){ const minY=k? lab[k-1].y+lab[k-1].h+6 : 8; const can=Math.min(shift,lab[k].y-minY); lab.slice(k).forEach(x=>x.y-=can); shift-=can; } }
   lab.forEach(L=>{ const ty=L.y+10;
-    L.as.forEach(a=>{ g+=`<path d="M ${LX-4} ${ty-3} L ${LX-16} ${ty-3} L ${a[0]+3} ${a[1]}" fill="none" stroke="#C4511A" stroke-width="1" marker-end="url(#arr)"/><circle cx="${a[0]}" cy="${a[1]}" r="2.2" fill="#C4511A"/>`; });
-    g+=`<text x="${LX}" y="${ty}" font-size="11" font-weight="700" fill="#1E1C1A">${esc(ROLE_NAME[L.r])}</text>`;
-    L.rl.forEach((t,k)=>g+=`<text x="${LX}" y="${ty+13+k*13}" font-size="10.5" font-family="Menlo,Consolas,monospace" fill="#9A3E12">${esc(t)}</text>`); });
+    L.as.forEach(a=>{ g+=`<path d="M ${LX-4} ${ty-3} L ${LX-16} ${ty-3} L ${a[0]+3} ${a[1]}" fill="none" stroke="#6E6960" stroke-width="1" marker-end="url(#arr)"/><circle cx="${a[0]}" cy="${a[1]}" r="2.2" fill="#6E6960"/>`; });
+    g+=`<text x="${LX}" y="${ty}" font-size="11" font-weight="700" fill="#16223F">${esc(ROLE_NAME[L.r])}</text>`;
+    L.rl.forEach((t,k)=>g+=`<text x="${LX}" y="${ty+13+k*13}" font-size="10.5" font-family="Menlo,Consolas,monospace" fill="#4F4B45">${esc(t)}</text>`); });
   if(others.length) g+=`<text x="8" y="${H-10}" font-size="10" fill="#7a828a">Autres pièces de la liste : ${esc([...new Set(others)].join(', ')).slice(0,110)}</text>`;
   g+=`<text x="300" y="${GR+30}" text-anchor="end" font-size="9.5" fill="#9aa1a8">Schéma de principe, sans échelle</text>`;
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="100%" font-family="Helvetica,Arial,sans-serif"><defs><pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="#eef0f2"/><line x1="0" y1="0" x2="0" y2="6" stroke="#c7ccd1" stroke-width="2"/></pattern><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#C4511A"/></marker></defs><rect width="${W}" height="${H}" fill="#fff"/>${g}</svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="100%" font-family="Helvetica,Arial,sans-serif"><defs><pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="#eef0f2"/><line x1="0" y1="0" x2="0" y2="6" stroke="#c7ccd1" stroke-width="2"/></pattern><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#6E6960"/></marker></defs><rect width="${W}" height="${H}" fill="#fff"/>${g}</svg>`;
 }
 
 function renderSchema(){ const s=schemaSVG(); $('schemaCard').style.display=s?'':'none'; $('schema').innerHTML=s; }
