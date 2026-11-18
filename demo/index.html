@@ -159,7 +159,9 @@ td input.q{width:64px;padding:6px;text-align:right}
         <option value="simple">Simple paroi inox 316L, intérieur lisse</option>
         <option value="isole">Isolé 25 mm (double paroi)</option></select></div>
     </div>
-    <label class="chk"><input type="checkbox" id="tTop" checked> Sortie de toit : solin plat, collerette et chapeau</label>
+    <div class="grid" style="margin-top:10px"><div><label for="tTop">Sortie en haut du conduit</label><select id="tTop">
+      <option value="complet">Sortie de toit (chapeau) + solin + collerette</option>
+      <option value="solin">Solin + collerette</option></select></div></div>
   </div>
 
   <div class="block" id="bDp" style="display:none">
@@ -192,7 +194,7 @@ td input.q{width:64px;padding:6px;text-align:right}
       <div class="cToit"><label for="cRoof">Toiture</label><select id="cRoof"><option value="2302">Toit plat</option><option value="2331">Pente 10° à 20°</option><option value="2334" selected>Pente 20° à 45°</option><option value="2335">Pente 45° à 60°</option></select></div>
       <div class="cToit"><label for="cHat">Chapeau</label><select id="cHat"><option value="1405">Antivent</option><option value="1401">Chinois</option><option value="1403">Conique</option></select></div>
     </div>
-    <label class="chk"><input type="checkbox" id="cTel" checked> Élément télescopique pour l'ajustement</label>
+    <label class="chk" id="wCTel"><input type="checkbox" id="cTel" checked> Élément télescopique pour l'ajustement</label>
     <label class="chk"><input type="checkbox" id="cBri" checked> Brides murales (1 par mètre)</label>
     <label class="chk cToit"><input type="checkbox" id="cRos" checked> Rosace de plafond</label>
   </div>
@@ -314,7 +316,8 @@ function refreshCfg(){
   const flexDirect = ins && S.type==='tubage' && $('iRacc').value==='flex';
   $('wRaccF').style.display = flexDirect?'none':''; $('wRaccO').style.display = flexDirect?'none':'';
   $('wPos').style.display = (ins||S.type==='murconduit')?'none':'';
-  $('wTel').style.display = S.type==='murconduit'?'none':''; $('wRos').style.display = ins?'none':'';
+  $('wTel').style.display = (S.type==='murconduit' || (!ins && $('rPos').value==='arriere'))?'none':'';
+  $('wCTel').style.display = $('cPos').value==='arriere'?'none':''; $('wRos').style.display = ins?'none':'';
   $('bTub').style.display = (S.type==='tubage'||S.type==='murconduit')?'':'none';
   $('bExt').style.display = S.type==='pignon'?'':'none';
   if(S.app!=='granules' && (S.type==='coax'||S.type==='vent')){ S.type='tubage'; setSeg('segType','tubage'); }
@@ -356,7 +359,7 @@ function generate(auto){
   const rL=(coax||vent||flexDirect)?0:Math.max(0,+$('rL').value||0)*1000;
   const lens = pellet?[[2000,'1020'],[1000,'1001'],[500,'1002'],[250,'1003']]:[[1000,'1001'],[500,'1002'],[250,'1003']];
   const avail = (ins?[[2000,'1020'],[1000,'1001'],[500,'1002'],[250,'1003']]:lens).filter(([l,c])=>find(`${c}-${K}${D}`,RS));
-  const tel = $('rTel').checked && S.type!=='murconduit';
+  const tel = $('rTel').checked && S.type!=='murconduit' && pos!=='arriere';
   const straight = rL - (tel?400:0);
   if(rL>0){
     if(tel) add(first(ins?[`1006-D${D}`]:[`1007-N${D}`],RS),1,`Élément télescopique Ø${dia}`,'r_tel');
@@ -398,17 +401,19 @@ function generate(auto){
     notes.push(`Conduit dans le mur : entrée par Té 90° pour flexible (1055) avec tampon en pied, puis tubage dans le conduit.`);
   }
   if(S.type==='tubage' || S.type==='murconduit'){
+    { const n=S.type==='murconduit'?3:2, b=find(`1362-${D}`);
+      if(b) add(b,n,`Bride de sécurité avec clip Ø${dia}`,'t_bs');
+      else { add(find(`1353-${D}`),n,`Bride de sécurité Ø${dia}`,'t_bs'); notes.push(`Bride de sécurité avec clip 1362 : pas de Ø${dia} au tarif (Ø130 et plus), bride 1353 proposée.`); }
+      if(S.type==='murconduit') add(find(`1002-E${D}`),1,`Élément droit L500 Ø${dia} noir`,'m_e500'); }
     const H=Math.max(1,+$('tH').value||1), iso=$('tType').value==='isole';
     if(!iso){
       const qS=Math.ceil(H/5)*5;
       add(find(`1501-B${D}`,'FLESSIBILE'), qS, `Tubage flexible simple paroi Ø${dia} réf. 1501-B (découpe par 5 m)`,'t_flex');
       if(S.type!=='murconduit') add(find(`1502-A${D}`,'FLESSIBILE'),1,`Raccord flexible-mâle Ø${dia}`,'t_racc_bas');
       add(first([`2357F-D${D}`],'FLESSIBILE'),1,`Support avec ailes réglables Ø${dia}`,'t_support');
-      if($('tTop').checked){
-        add(first([`2302-A${D}`,`1304-${D}`],'FLESSIBILE'),1,`Solin plat Ø${dia}`,'t_solin');
+      { add(first([`2302-A${D}`,`1304-${D}`],'FLESSIBILE'),1,`Solin plat Ø${dia}`,'t_solin');
         add(first([`1306-${D}`],'FLESSIBILE'),1,`Collerette de solin Ø${dia}`,'t_coll');
-        add(first([`1401-D${D}`],'FLESSIBILE'),1,`Chapeau chinois Ø${dia}`,'t_chap');
-      }
+        if($('tTop').value==='complet') add(first([`1401-D${D}`],'FLESSIBILE'),1,`Chapeau chinois Ø${dia}`,'t_chap'); }
       notes.push(`Flexible simple paroi : découpe en multiples de 5 m (réf. 1501-B), ${qS} m facturés pour ${H} m de conduit.`);
     } else {
       const rolls=[8,16,21].filter(r=>find(`2501-A${D}.${r}`,'FLESSIBILE ISOLATO'));
@@ -427,11 +432,9 @@ function generate(auto){
         add(find(`2503-A${D}`,'FLESSIBILE ISOLATO'),1,`Raccord flexible-femelle DP Ø${dia}`,'t_racc_haut');
         add(find(`2357F-A${D}`,'FLESSIBILE ISOLATO'),1,`Support avec ailes réglables Ø${dia}/25`,'t_support');
         add(first([`2360-A${D}`,`2358-A${D}`],'ECO 25 INOX'),1,`Bride de sécurité Ø${dia}/25`,'t_bride');
-        if($('tTop').checked){
-          add(find(`2302-A${D}`,'FLESSIBILE ISOLATO'),1,`Solin plat Ø${dia}/25`,'t_solin');
+        { add(find(`2302-A${D}`,'FLESSIBILE ISOLATO'),1,`Solin plat Ø${dia}/25`,'t_solin');
           add(find(`2306-A${D}`,'FLESSIBILE ISOLATO'),1,`Collerette pour solin Ø${dia}/25`,'t_coll');
-          add(find(`1401-D${D}`,'FLESSIBILE ISOLATO'),1,`Chapeau chinois Ø${dia}`,'t_chap');
-        }
+          if($('tTop').value==='complet') add(find(`1401-D${D}`,'FLESSIBILE ISOLATO'),1,`Chapeau chinois Ø${dia}`,'t_chap'); }
       }
     }
   }
@@ -459,7 +462,7 @@ function generate(auto){
   if(coax){
     const noir=$('cFin').value==='noir', CX=noir?'ZC':'C', SA=noir?'Z':'A', SH=noir?'COASSIALE INOX-NERO':'COASSIALE INOX-INOX';
     const ext=dia===80?125:150, lbl=`Ø${dia}/${ext}`;
-    const cL=Math.max(0,+$('cL').value||0)*1000, tel=$('cTel').checked;
+    const cL=Math.max(0,+$('cL').value||0)*1000, tel=$('cTel').checked && $('cPos').value!=='arriere';
     if($('cPos').value==='arriere'){ add(find(`1051-${CX}${D}`,SH),1,`Raccord à Té 90° coax ${lbl}`,'c_te'); add(find(`1201-${CX}${D}`,SH),1,`Tampon purge coax ${lbl}`,'c_purge'); }
     else notes.push(`Sortie dessus : départ vertical sans Té. Prévoir un accès pour le ramonage (élément d'inspection 1058 à ajouter depuis la recherche si besoin).`);
     if(tel && cL>0) add(find(`1006-${CX}${D}`,SH),1,`Élément télescopique coax ${lbl}`,'c_tel');
@@ -542,14 +545,14 @@ let autoT; const autoRegen=()=>{ clearTimeout(autoT); autoT=setTimeout(()=>{ if(
 document.querySelectorAll('#cfg input, #cfg select').forEach(el=>el.addEventListener('change',autoRegen));
 document.querySelectorAll('#cfg .seg button').forEach(el=>el.addEventListener('click',autoRegen));
 $('dia').onchange=()=>{S.dia=+$('dia').value; save();};
-$('cOut').onchange=refreshCfg; $('iRacc').onchange=refreshCfg; $('vPos').addEventListener('change',refreshCfg);
+$('cOut').onchange=refreshCfg; $('iRacc').onchange=refreshCfg; $('vPos').addEventListener('change',refreshCfg); $('rPos').addEventListener('change',refreshCfg); $('cPos').addEventListener('change',refreshCfg);
 
 // ---------- schéma de principe ----------
 let G_LIAISON='Élément de liaison noir / Eco 25';
 const ROLE_NAME={r_tel:'Élément télescopique',r_droit:'Éléments droits',r_c30:'Coude 30°',r_c45:'Coude 45°',r_c90:'Coude 90°',r_te:'Té 90° avec tampon',r_manchon:'Raccord F/F anti-bistre',r_rosace:'Rosace',r_bride:'Brides murales',
 t_flex:'Tubage flexible',t_racc_bas:'Raccord flexible bas',t_racc_haut:'Raccord flexible haut',t_support:'Support à ailes',t_bride:'Bride de sécurité',t_solin:'Solin / plaque de sortie',t_coll:'Collerette',t_chap:'Chapeau',t_joint:'Raccord flexible-flexible',
 d_liaison:G_LIAISON,d_droit:'Éléments droits Eco 25',f_support:'Collier de soutien inox',f_ailes:'Support à ailes',f_bride:'Bride de sécurité',f_coq:'Coquille isolante',f_rosace:'Rosace de plafond',f_rosace_ph:'Rosace plancher habité',
-x_solin:'Solin',x_coll:'Collerette',x_chap:'Chapeau',c_te:'Té 90° coax',c_purge:'Tampon purge',c_tel:'Télescopique coax',c_droit:'Éléments droits coax',c_c30:'Coude 30° coax',c_c45:'Coude 45° coax',c_c90:'Coude 90° coax',c_bride:'Brides murales',c_ventouse:'Sortie ventouse',m_te:'Té 90° pour flexible',m_tampon:'Tampon purge',e_trav:'Traversée de mur Eco 25',e_coll:'Collerettes couvre-mur',e_te:'Té 90° DP',e_purge:'Tampon purge',e_equerre:'Équerre support à mur',e_droit:'Éléments droits Eco 25',e_bride:'Brides murales Eco 25',e_bs:'Bride de sécurité',e_haub:'Bride de haubanage',d_c15:'Coude 15° Eco 25',d_c30:'Coude 30° Eco 25',d_c45:'Coude 45° Eco 25',e_c15:'Coude 15° Eco 25',e_c30:'Coude 30° Eco 25',e_c45:'Coude 45° Eco 25',v_ros:'Rosace noire',v_col:'Colliers de jonction'};
+x_solin:'Solin',x_coll:'Collerette',x_chap:'Chapeau',c_te:'Té 90° coax',c_purge:'Tampon purge',c_tel:'Télescopique coax',c_droit:'Éléments droits coax',c_c30:'Coude 30° coax',c_c45:'Coude 45° coax',c_c90:'Coude 90° coax',c_bride:'Brides murales',c_ventouse:'Sortie ventouse',m_te:'Té 90° pour flexible',m_tampon:'Tampon purge',e_trav:'Traversée de mur Eco 25',e_coll:'Collerettes couvre-mur',e_te:'Té 90° DP',e_purge:'Tampon purge',e_equerre:'Équerre support à mur',e_droit:'Éléments droits Eco 25',e_bride:'Brides murales Eco 25',e_bs:'Bride de sécurité',e_haub:'Bride de haubanage',d_c15:'Coude 15° Eco 25',d_c30:'Coude 30° Eco 25',d_c45:'Coude 45° Eco 25',e_c15:'Coude 15° Eco 25',e_c30:'Coude 30° Eco 25',e_c45:'Coude 45° Eco 25',v_ros:'Rosace noire',t_bs:'Brides de sécurité',m_e500:'Élément droit L500 noir',v_col:'Colliers de jonction'};
 function schemaSVG(){
   const G=S.gen; if(!G) return '';
   ROLE_NAME.d_liaison = G.app==='insert'?'Adaptateur inox / Eco 25':'Élément de liaison noir / Eco 25';
