@@ -549,6 +549,20 @@ $('cOut').onchange=refreshCfg; $('iRacc').onchange=refreshCfg; $('vPos').addEven
 
 // ---------- schéma de principe ----------
 let G_LIAISON='Élément de liaison noir / Eco 25';
+// ---- Lien vers la note de calcul : la configuration est transmise par le stockage du navigateur (même site)
+function faisa(){
+  const v=id=>{ const e=$(id); return e ? (e.type==='checkbox'?e.checked:e.value) : null; };
+  const p={ ts:Date.now(), app:S.app, type:S.type, dia:+$('dia').value,
+    rPos:v('rPos'), rL:v('rL'), r30:v('r30'), r45:v('r45'), r90:v('r90'),
+    tH:v('tH'), tType:v('tType'), tTop:v('tTop'),
+    dL:v('dL'), dHat:v('dHat'), d15:v('d15'), d30:v('d30'), d45:v('d45'),
+    eH:v('eH'), e15:v('e15'), e30:v('e30'), e45:v('e45'),
+    cOut:v('cOut'), cPos:v('cPos'), cL:v('cL'), c30:v('c30'), c45:v('c45'), c90:v('c90'),
+    vPos:v('vPos'), vL:v('vL'), cli:v('cli'), chan:v('chan') };
+  try{ localStorage.setItem('acvs-faisa', JSON.stringify(p)); }catch(e){}
+  location.href='note/';
+}
+
 const ROLE_NAME={r_tel:'Élément télescopique',r_droit:'Éléments droits',r_c30:'Coude 30°',r_c45:'Coude 45°',r_c90:'Coude 90°',r_te:'Té 90° avec tampon',r_manchon:'Raccord F/F anti-bistre',r_rosace:'Rosace',r_bride:'Brides murales',
 t_flex:'Tubage flexible',t_racc_bas:'Raccord flexible bas',t_racc_haut:'Raccord flexible haut',t_support:'Support à ailes',t_bride:'Bride de sécurité',t_solin:'Solin / plaque de sortie',t_coll:'Collerette',t_chap:'Chapeau',t_joint:'Raccord flexible-flexible',
 d_liaison:G_LIAISON,d_droit:'Éléments droits Eco 25',f_support:'Collier de soutien inox',f_ailes:'Support à ailes',f_bride:'Bride de sécurité',f_coq:'Coquille isolante',f_rosace:'Rosace de plafond',f_rosace_ph:'Rosace plancher habité',
