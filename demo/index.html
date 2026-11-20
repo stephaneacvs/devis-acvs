@@ -467,6 +467,7 @@ function generate(auto){
       else { add(find(`1353-${D}`),n,`Bride de sécurité Ø${dia}`,'t_bs'); notes.push(`Bride de sécurité avec clip 1362 : pas de Ø${dia} au tarif (Ø130 et plus), bride 1353 proposée.`); }
       if(S.type==='murconduit') add(find(`1002-E${D}`),1,`Élément droit L500 Ø${dia} noir`,'m_e500'); }
     const H=Math.max(1,+$('tH').value||1), iso=$('tType').value==='isole';
+    { const cote=dia+30+(iso?50:0), c=Math.ceil(cote/10); notes.push(`Section du conduit existant à vérifier : il faut au moins ${c} × ${c} cm (ou Ø${c} cm) pour passer ce tubage${iso?' isolé':''} Ø${dia} avec 3 cm de jeu. Exemple : un 20 × 20 cm accepte un flexible simple Ø170 au plus.`); }
     if(!iso){
       const qS=Math.ceil(H/5)*5;
       add(find(`1501-B${D}`,'FLESSIBILE'), qS, `Tubage flexible simple paroi Ø${dia} réf. 1501-B (découpe par 5 m)`,'t_flex');
